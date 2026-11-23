@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>မွေးနေ့ကိတ်</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-1:#240b4c;
+  --bg-2:#3b1874;
+  --bg-3:#cf6478;
+  --glass:rgba(255,255,255,.12);
+  --glass-border:rgba(255,255,255,.22);
+  --text:#ffffff;
+  --muted:rgba(255,255,255,.85);
+  --shadow:0 20px 50px rgba(10,4,28,.42);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:#110822;font-family:'Noto Sans Myanmar','Padauk','Myanmar Text',system-ui,sans-serif;line-height:1.75;color:var(--text)}
+.frame{
+  position:relative;width:100%;height:100vh;height:100dvh;overflow:hidden;
+  transition:background 1s ease;
+  background:
+    radial-gradient(circle at 14% 10%,rgba(255,111,181,.42) 0,transparent 42%),
+    radial-gradient(circle at 88% 18%,rgba(255,209,102,.22) 0,transparent 38%),
+    linear-gradient(155deg,var(--bg-1),var(--bg-2) 52%,var(--bg-3));
+}
+.frame.night{
+  background:
+    radial-gradient(circle at 50% 25%,rgba(123,97,255,.18) 0,transparent 55%),
+    linear-gradient(180deg,#050417 0%,#150d3b 62%,#321754 100%);
+}
+#fw{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}
+.scroll{
+  position:relative;z-index:2;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:16px max(14px,env(safe-area-inset-right)) max(28px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));
+  text-align:center;
+}
+.wrap{
+  max-width:1040px;min-height:100%;margin:0 auto;
+  display:grid;grid-template-columns:1fr;gap:10px;align-content:center;
+}
+@media(min-width:820px){
+  .wrap{grid-template-columns:1.05fr .95fr;column-gap:40px;row-gap:10px;align-items:center}
+  h1,.steps{grid-column:1/-1}
+  #stage{max-width:450px;width:100%}
+  .panel{margin:0;justify-self:stretch;max-width:none;padding:24px 26px}
+  .scroll{padding-top:24px}
+}
+/* Full-cake solo mode when blowing candles */
+.wrap.solo{
+  grid-template-columns:1fr !important;
+  justify-items:center;
+  gap:14px;
+}
+.wrap.solo #stage{
+  max-width:min(480px,88vw);
+  transform:scale(1.03);
+  transition:transform .4s ease;
+}
+.wrap.solo .panel{
+  display:none;
+}
+h1{
+  margin:2px 0;font-size:clamp(22px,4.2vw,38px);line-height:1.5;font-weight:700;
+  text-shadow:0 4px 18px rgba(0,0,0,.35);letter-spacing:.2px;
+}
+.steps{
+  display:flex;gap:6px;margin:4px 0 8px;font-size:12.5px;
+  justify-content:center;flex-wrap:wrap;
+}
+.steps span{
+  padding:3px 12px;border-radius:999px;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.14);
+  opacity:.68;transition:all .25s ease;
+}
+.steps span.on{
+  background:linear-gradient(135deg,#ff5ca8,#ff85a1);
+  border-color:rgba(255,255,255,.55);opacity:1;font-weight:700;
+  box-shadow:0 6px 18px rgba(255,92,168,.35);
+}
+#stage{
+  position:relative;max-width:300px;margin:0 auto;width:100%;
+  filter:drop-shadow(0 18px 28px rgba(0,0,0,.34));
+  transition:transform .4s ease,max-width .4s ease;
+}
+#stage svg{width:100%;height:auto;display:block;user-select:none}
+.hint{
+  display:inline-block;
+  margin:2px auto 0;
+  padding:9px 20px;
+  border-radius:999px;
+  background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.26);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  color:#fff6d6;
+  font-size:15px;
+  font-weight:600;
+  box-shadow:0 10px 26px rgba(0,0,0,.25);
+  animation:pulseHint 2.2s infinite ease-in-out;
+  transition:opacity .45s ease,transform .45s ease;
+}
+.hint.gone{
+  opacity:0;
+  transform:translateY(6px);
+  pointer-events:none;
+}
+@keyframes pulseHint{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-3px)}
+}
+.panel{
+  width:100%;max-width:520px;margin:8px auto 0;
+  background:var(--glass);border:1px solid var(--glass-border);
+  border-radius:22px;padding:18px;text-align:left;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  box-shadow:var(--shadow);
+  animation:fadeUp .35s ease;
+}
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.panel h2{margin:0 0 8px;font-size:19px;font-weight:700;display:flex;align-items:center;gap:8px}
+.panel p{color:var(--muted);font-size:14.5px;margin:6px 0}
+label.t{display:block;font-size:13px;margin:11px 0 5px;font-weight:700;color:#fff7fc}
+input[type=text]{
+  width:100%;padding:9px 13px;border-radius:12px;
+  border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.94);
+  color:#240b4c;font:inherit;font-size:15.5px;outline:none;transition:box-shadow .2s ease;
+}
+input[type=text]:focus{box-shadow:0 0 0 3px rgba(255,111,181,.45)}
+input[type=range]{accent-color:#ff6fb5;cursor:pointer;height:6px;border-radius:999px}
+.row,.layerrow{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin:5px 0}
+.layerrow{padding:4px 6px;border-radius:12px;background:rgba(255,255,255,.05)}
+.ln{font-size:12px;width:58px;font-weight:600;color:var(--muted)}
+.sw{
+  width:26px;height:26px;border-radius:50%;
+  border:2.5px solid rgba(255,255,255,.35);cursor:pointer;display:inline-block;
+  transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease;
+}
+.sw:hover{transform:scale(1.1)}
+.sw.sel{
+  border-color:#fff;transform:scale(1.16);
+  box-shadow:0 0 0 2px rgba(255,111,181,.65);
+}
+input[type=color]{
+  width:30px;height:30px;border:1px solid rgba(255,255,255,.35);
+  border-radius:50%;padding:0;background:none;cursor:pointer;overflow:hidden;
+}
+.chip{
+  padding:4px 13px;border-radius:999px;
+  background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.18);
+  color:#fff;font:inherit;font-size:13.5px;cursor:pointer;
+  transition:all .18s ease;
+}
+.chip:hover{background:rgba(255,255,255,.24)}
+.chip.sel{
+  border-color:#fff;background:linear-gradient(135deg,#ff5ca8,#ff85a1);
+  font-weight:700;box-shadow:0 4px 14px rgba(255,92,168,.3);
+}
+.btn{
+  margin-top:12px;width:100%;padding:10px 14px;border:0;border-radius:14px;
+  font:inherit;font-weight:700;font-size:15.5px;
+  background:linear-gradient(180deg,#ffffff,#ffeef6);color:#6e1752;
+  cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.18);
+  transition:transform .15s ease,filter .15s ease;
+}
+.btn:hover{filter:brightness(1.03);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn.alt{
+  background:rgba(255,255,255,.16);color:#fff;
+  border:1px solid rgba(255,255,255,.22);box-shadow:none;margin-top:8px;
+}
+.btn.alt:hover{background:rgba(255,255,255,.24)}
+.fl{
+  transform-box:fill-box;transform-origin:50% 100%;
+  animation:fk .17s infinite alternate ease-in-out;
+  filter:drop-shadow(0 0 8px rgba(255,185,70,.85));
+}
+@keyframes fk{
+  from{transform:scale(1,1) rotate(-2.5deg)}
+  to{transform:scale(.92,1.09) rotate(2.5deg)}
+}
+.fl.off{display:none}
+.sm{opacity:0}
+.sm.puff{animation:pf 2.2s ease-out forwards}
+@keyframes pf{
+  0%{opacity:.82;transform:translateY(0) scale(.65)}
+  100%{opacity:0;transform:translateY(-48px) scale(1.65)}
+}
+</style>
+</head>
+<body>
+<div class="frame" id="frame">
+  <canvas id="fw"></canvas>
+  <div class="scroll" id="scroll">
+    <div class="wrap" id="wrap">
+      <h1 id="title"></h1>
+      <div class="steps" id="steps"></div>
+      <div id="stage"></div>
+      <div id="hintBox"></div>
+      <div class="panel" id="panel"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const mm = n => String(n).replace(/\d/g, d => '၀၁၂၃၄၅၆၇၈၉'[d]);
+const PAL = ['#f6d7b0','#7b4a2d','#ff9ec4','#f7e27a','#a8e6cf','#c3a6ff','#ff7b54','#6ec6ff'];
+const FR = ['#fff8f0','#ff9ec4','#5b3a29','#a8e6cf','#8fd3ff','#c3a6ff','#ffe27a'];
+const PC = ['#ff4d6d','#ffd23f','#3bceac','#4cc9f0','#b388ff','#ffffff'];
+const CC = ['#ff4d6d','#ffd23f','#3bceac','#4cc9f0','#b388ff'];
+
+const S = {
+  name:'',
+  layers:3,
+  lc:['#f6d7b0','#ff9ec4','#7b4a2d','#f7e27a','#a8e6cf'],
+  fr:'#fff8f0',
+  drip:true,
+  spr:'rainbow',
+  candles:5,
+  cc:'rainbow',
+  out:new Set()
+};
+
+let step = 0, cxs = [], wishTimer = null;
+const rnd = seed => () => (seed = seed * 16807 % 2147483647, (seed - 1) / 2147483646);
+const heading = () => S.name.trim() ? `မွေးနေ့ ပျော်ရွှင်ပါစေ ${S.name.trim()}!` : 'မွေးနေ့ကိတ် ဖန်တီးမယ်';
+
+/* ---------- cake renderer ---------- */
+function renderCake() {
+  const n = S.layers, H = 54, base = 360, c = S.candles;
+  let g = '';
+
+  g += `<defs>
+    <linearGradient id="fg" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#ffe66d"/>
+      <stop offset=".55" stop-color="#ff9f1c"/>
+      <stop offset="1" stop-color="#ff5400"/>
+    </linearGradient>
+    <radialGradient id="cakeGlow" cx="50%" cy="55%" r="50%">
+      <stop offset="0%" stop-color="#ffb3e6" stop-opacity=".24"/>
+      <stop offset="100%" stop-color="#ffb3e6" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="standGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#c9bee0"/>
+      <stop offset="50%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#c9bee0"/>
+    </linearGradient>
+  </defs>`;
+
+  g += `<circle cx="200" cy="240" r="185" fill="url(#cakeGlow)"/>`;
+  g += `<rect x="172" y="376" width="56" height="10" rx="4" fill="#b9aed4"/>`;
+  g += `<ellipse cx="200" cy="388" rx="92" ry="9" fill="#9b8ec2"/>`;
+  g += `<ellipse cx="200" cy="368" rx="192" ry="20" fill="#cbbfe6"/>`;
+  g += `<ellipse cx="200" cy="361" rx="192" ry="20" fill="url(#standGrad)"/>`;
+
+  for (let i = 0; i < n; i++) {
+    const w = 290 - i * 38;
+    const x = 200 - w / 2;
+    const y = base - (i + 1) * H;
+    const r = rnd(i * 97 + 13);
+
+    g += `<rect x="${x}" y="${y}" width="${w}" height="${H}" rx="12" fill="${S.lc[i]}"/>`;
+    g += `<rect x="${x}" y="${y}" width="16" height="${H}" rx="8" fill="#ffffff" opacity=".14"/>`;
+    g += `<rect x="${x}" y="${y + H - 12}" width="${w}" height="12" rx="6" fill="#000" opacity=".09"/>`;
+
+    g += `<rect x="${x - 4}" y="${y - 4}" width="${w + 8}" height="16" rx="8" fill="${S.fr}"/>`;
+    g += `<rect x="${x - 2}" y="${y - 3}" width="${w + 4}" height="5" rx="2.5" fill="#ffffff" opacity=".32"/>`;
+
+    if (S.drip) {
+      const m = Math.max(2, Math.floor(w / 36));
+      for (let k = 0; k < m; k++) {
+        const dx = x + 8 + k * ((w - 28) / (m - 1));
+        const dh = 12 + r() * 20;
+        g += `<rect x="${dx}" y="${y + 4}" width="12" height="${dh}" rx="6" fill="${S.fr}"/>`;
+      }
+    }
+
+    if (S.spr !== 'none') {
+      const cnt = Math.floor(w / 8);
+      for (let k = 0; k < cnt; k++) {
+        const px = x + 8 + r() * (w - 16);
+        const py = y + 4 + r() * (H - 12);
+        const col = PC[Math.floor(r() * 6)];
+        const a = Math.floor(r() * 180);
+        if (S.spr === 'rainbow') {
+          g += `<rect x="${px}" y="${py}" width="7" height="2.6" rx="1.3" fill="${col}" transform="rotate(${a} ${px} ${py})"/>`;
+        } else if (S.spr === 'dots') {
+          g += `<circle cx="${px}" cy="${py}" r="2.6" fill="${col}"/>`;
+        } else {
+          g += `<text x="${px}" y="${py}" font-size="11" fill="${col}">${S.spr === 'hearts' ? '♥' : '★'}</text>`;
+        }
+      }
+    }
+  }
+
+  const y0 = base - n * H;
+  const topW = 290 - (n - 1) * 38;
+  const sp = c > 1 ? Math.min(30, (topW - 44) / (c - 1)) : 0;
+  cxs = [];
+
+  for (let k = 0; k < c; k++) {
+    const cx = 200 + (k - (c - 1) / 2) * sp;
+    const col = S.cc === 'rainbow' ? CC[k % 5] : S.cc;
+    const by = y0 - 50;
+    const off = S.out.has(k);
+    cxs.push(cx);
+
+    g += `<rect x="${cx - 4.5}" y="${y0 - 44}" width="9" height="50" rx="3" fill="${col}"/>`;
+    g += `<rect x="${cx - 4.5}" y="${y0 - 34}" width="9" height="4" fill="#ffffff" opacity=".45"/>`;
+    g += `<rect x="${cx - 4.5}" y="${y0 - 20}" width="9" height="4" fill="#ffffff" opacity=".45"/>`;
+    g += `<line x1="${cx}" y1="${y0 - 44}" x2="${cx}" y2="${by}" stroke="#2b2b2b" stroke-width="1.7" stroke-linecap="round"/>`;
+    g += `<g class="fl ${off ? 'off' : ''}" id="f${k}">
+      <path d="M${cx} ${by} C${cx - 10} ${by - 10} ${cx - 4} ${by - 20} ${cx} ${by - 32} C${cx + 4} ${by - 20} ${cx + 10} ${by - 10} ${cx} ${by}Z" fill="url(#fg)"/>
+      <ellipse cx="${cx}" cy="${by - 8}" rx="2.6" ry="6" fill="#fff6c8"/>
+    </g>`;
+    g += `<path class="sm ${off ? 'puff' : ''}" id="s${k}" d="M${cx} ${by} q-6 -10 0 -18 q6 -8 0 -16" fill="none" stroke="#e6e6e6" stroke-width="3" stroke-linecap="round"/>`;
+  }
+
+  $('#stage').innerHTML = `<svg viewBox="0 0 400 404" style="cursor:${step === 2 ? 'pointer' : 'default'}" role="img" aria-label="${heading()}">${g}</svg>`;
+}
+
+/* ---------- UI helpers ---------- */
+const sw = (a, v, cur, x = '') => `<i class="sw ${cur === v ? 'sel' : ''}" style="background:${v}" data-a="${a}" data-v="${v}" ${x}></i>`;
+const chip = (a, v, cur, l) => `<button type="button" class="chip ${String(cur) === String(v) ? 'sel' : ''}" data-a="${a}" data-v="${v}">${l}</button>`;
+const left = () => S.candles - S.out.size;
+
+function lrows() {
+  let h = '';
+  for (let i = 0; i < S.layers; i++) {
+    h += `<div class="layerrow">
+      <span class="ln">အလွှာ ${mm(i + 1)}</span>
+      ${PAL.map(c => sw('lc', c, S.lc[i], `data-i="${i}"`)).join('')}
+      <input type="color" data-a="lcc" data-i="${i}" value="${S.lc[i]}" aria-label="အလွှာ ${i + 1} အရောင်">
+    </div>`;
+  }
+  $('#lrows').innerHTML = h;
+}
+
+function blowCandle(idx) {
+  if (step !== 2 || idx < 0 || S.out.has(idx)) return;
+  S.out.add(idx);
+
+  const fl = $('#f' + idx), sm = $('#s' + idx);
+  if (fl) fl.classList.add('off');
+  if (sm) {
+    sm.classList.remove('puff');
+    void sm.offsetWidth;
+    sm.classList.add('puff');
+  }
+
+  // Fade away the instruction once the user starts blowing so the whole cake stands pure
+  const hint = $('#candleHint');
+  if (hint) hint.classList.add('gone');
+
+  if (!left()) {
+    clearTimeout(wishTimer);
+    wishTimer = setTimeout(() => {
+      show(3);
+      melody();
+    }, 950);
+  }
+}
+
+function show(s) {
+  clearTimeout(wishTimer);
+  step = s;
+  renderCake();
+
+  const isSolo = s === 2;
+  $('#wrap').classList.toggle('solo', isSolo);
+  $('#frame').classList.toggle('night', s === 3);
+  s === 3 ? fwStart() : fwStop();
+
+  $('#steps').innerHTML = ['၁ ကိတ်ဖုတ်', '၂ အလှဆင်', '၃ ဆုတောင်း', '၄ ဂုဏ်ပြု']
+    .map((t, i) => `<span class="${i === s ? 'on' : ''}">${t}</span>`).join('');
+  $('#title').textContent = s === 3 ? `🎆 ${heading()} 🎆` : heading();
+
+  const hintBox = $('#hintBox');
+  const P = $('#panel');
+  const nm = S.name.trim() ? S.name.trim() + ' ရေ၊ ' : '';
+
+  if (s === 0) {
+    hintBox.innerHTML = '';
+    P.innerHTML = `<h2>🍰 ကိတ်ဖုတ်ကြမယ်</h2>
+      <label class="t" for="nm">မွေးနေ့ရှင်ရဲ့ နာမည်</label>
+      <input type="text" id="nm" maxlength="20" placeholder="နာမည်ရိုက်ပါ" value="${S.name.replace(/"/g, '&quot;')}">
+      <label class="t" for="ly">ကိတ်အလွှာ အရေအတွက်: <b id="lv">${mm(S.layers)}</b></label>
+      <input type="range" id="ly" min="1" max="5" value="${S.layers}" style="width:100%">
+      <label class="t">အလွှာတစ်ခုချင်းစီရဲ့ ကိတ်အရောင်</label>
+      <div id="lrows"></div>
+      <button type="button" class="btn" data-a="go" data-v="1">ရှေ့ဆက်ရန်: အလှဆင် →</button>`;
+    lrows();
+  } else if (s === 1) {
+    hintBox.innerHTML = '';
+    P.innerHTML = `<h2>🎨 အလှဆင်ကြမယ်</h2>
+      <label class="t">ခရင်မ် အရောင်</label>
+      <div class="row">${FR.map(c => sw('fr', c, S.fr)).join('')}<input type="color" data-a="frc" value="${S.fr}" aria-label="ခရင်မ် အရောင်"></div>
+      <label class="t">ခရင်မ် ပုံစံ</label>
+      <div class="row">${chip('drip', 1, +S.drip, 'ယိုစီးသော')}${chip('drip', 0, +S.drip, 'ချောမွေ့သော')}</div>
+      <label class="t">ကြဲပက်စရာ</label>
+      <div class="row">${[['none','မထည့်ပါ'],['rainbow','သက်တန့်'],['dots','အစက်'],['hearts','♥ နှလုံးသား'],['stars','★ ကြယ်']].map(([v,l]) => chip('spr', v, S.spr, l)).join('')}</div>
+      <label class="t" for="cn">ဖယောင်းတိုင် အရေအတွက်: <b id="cv">${mm(S.candles)}</b></label>
+      <input type="range" id="cn" min="1" max="9" value="${S.candles}" style="width:100%">
+      <label class="t">ဖယောင်းတိုင် အရောင်</label>
+      <div class="row">${chip('cc', 'rainbow', S.cc, 'သက်တန့်')}${CC.map(c => sw('cc', c, S.cc)).join('')}</div>
+      <button type="button" class="btn" data-a="go" data-v="2">ကိတ်ကို ကြည့်မယ် 🎂</button>
+      <button type="button" class="btn alt" data-a="go" data-v="0">← နောက်သို့</button>`;
+  } else if (s === 2) {
+    // Only the cake + single gentle instruction. No panel, no redo button until candles are blown!
+    P.innerHTML = '';
+    hintBox.innerHTML = `<div class="hint" id="candleHint">✨ ဆုတောင်းပြီး ဖယောင်းတိုင်တွေကို ထိပြီး မီးမှုတ်ပါ</div>`;
+  } else {
+    hintBox.innerHTML = '';
+    P.innerHTML = `<h2>💖 ${nm}ဆုတောင်းတာ ပြည့်ပါစေ</h2>
+      <p>ဆုတောင်းတဲ့အရာအားလုံး ပြည့်ဝပါစေ။ ကျန်းမာချမ်းသာပြီး နေ့တိုင်း ပျော်ရွှင်ပါစေ။ ဒီနှစ်လေးက သင့်အတွက် အကောင်းဆုံးနှစ် ဖြစ်ပါစေ။ 🎉</p>
+      <button type="button" class="btn" data-a="new">🍰 ကိတ်အသစ် ပြန်လုပ်မယ်</button>
+      <button type="button" class="btn alt" data-a="fw">🎆 မီးရှူးမီးပန်း ထပ်ကြည့်မယ်</button>`;
+  }
+}
+
+/* ---------- event delegation ---------- */
+$('#panel').addEventListener('click', e => {
+  const t = e.target.closest('[data-a]');
+  if (!t) return;
+  const a = t.dataset.a, v = t.dataset.v;
+  if (a === 'go') { S.out.clear(); show(+v); }
+  else if (a === 'lc') { S.lc[+t.dataset.i] = v; renderCake(); lrows(); }
+  else if (a === 'fr') { S.fr = v; show(1); }
+  else if (a === 'drip') { S.drip = v === '1'; show(1); }
+  else if (a === 'spr') { S.spr = v; show(1); }
+  else if (a === 'cc') { S.cc = v; show(1); }
+  else if (a === 'fw') { for (let i = 0; i < 6; i++) setTimeout(launch, i * 200); }
+  else if (a === 'new') { S.out.clear(); show(0); }
+});
+
+$('#panel').addEventListener('input', e => {
+  const t = e.target;
+  if (t.id === 'nm') { S.name = t.value; $('#title').textContent = step === 3 ? `🎆 ${heading()} 🎆` : heading(); }
+  else if (t.id === 'ly') { S.layers = +t.value; $('#lv').textContent = mm(t.value); renderCake(); lrows(); }
+  else if (t.id === 'cn') { S.candles = +t.value; $('#cv').textContent = mm(t.value); renderCake(); }
+  else if (t.dataset.a === 'lcc') { S.lc[+t.dataset.i] = t.value; renderCake(); }
+  else if (t.dataset.a === 'frc') { S.fr = t.value; renderCake(); }
+});
+
+$('#stage').addEventListener('click', e => {
+  if (step !== 2 || !left()) return;
+  const svg = $('#stage svg');
+  if (!svg) return;
+  const r = svg.getBoundingClientRect();
+  const vx = (e.clientX - r.left) / r.width * 400;
+  let best = -1;
+  cxs.forEach((cx, k) => {
+    if (!S.out.has(k) && (best < 0 || Math.abs(cx - vx) < Math.abs(cxs[best] - vx))) best = k;
+  });
+  blowCandle(best);
+});
+
+/* ---------- fireworks ---------- */
+const fw = $('#fw'), fx = fw.getContext('2d');
+let rk = [], pt = [], fwOn = false, lastL = 0, rafId = 0;
+
+function launch() {
+  const h = fw._h || fw.height, w = fw._w || fw.width;
+  const dist = h * (.42 + Math.random() * .38);
+  rk.push({
+    x: w * (.14 + Math.random() * .72),
+    y: h,
+    vx: (Math.random() - .5) * 1.1,
+    vy: -Math.sqrt(.105 * dist),
+    c: `hsl(${Math.floor(Math.random() * 360)},100%,66%)`
+  });
+}
+
+function burst(x, y, c) {
+  const n = 84, big = 1.1 + Math.random() * 3.3;
+  for (let i = 0; i < n; i++) {
+    const a = Math.PI * 2 * i / n + (Math.random() - .5) * .08;
+    const s = big * (.5 + Math.random() * .52);
+    pt.push({
+      x, y,
+      vx: Math.cos(a) * s,
+      vy: Math.sin(a) * s,
+      r: i % 7 === 0 ? 2.8 : 1.9,
+      a: 1,
+      c: i % 5 === 0 ? '#fff7d6' : c
+    });
+  }
+}
+
+function resizeFw() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const w = $('#frame').clientWidth, h = $('#frame').clientHeight;
+  fw.width = w * dpr;
+  fw.height = h * dpr;
+  fx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  fw._w = w;
+  fw._h = h;
+}
+
+function fwStart() {
+  if (fwOn) return;
+  resizeFw();
+  fwOn = true;
+  lastL = 0;
+  for (let i = 0; i < 2; i++) setTimeout(launch, i * 180);
+  const stepFrame = t => {
+    if (!fwOn) return;
+    const w = fw._w || fw.width, h = fw._h || fw.height;
+    fx.globalCompositeOperation = 'destination-out';
+    fx.fillStyle = 'rgba(0,0,0,.22)';
+    fx.fillRect(0, 0, w, h);
+    fx.globalCompositeOperation = 'lighter';
+
+    if (t - lastL > 680) { lastL = t; launch(); }
+
+    rk = rk.filter(r => {
+      r.x += r.vx; r.y += r.vy; r.vy += .05;
+      fx.fillStyle = r.c;
+      fx.beginPath(); fx.arc(r.x, r.y, 2.5, 0, Math.PI * 2); fx.fill();
+      if (r.vy >= -.5) { burst(r.x, r.y, r.c); return false; }
+      return true;
+    });
+
+    pt = pt.filter(p => {
+      p.x += p.vx; p.y += p.vy; p.vy += .045; p.vx *= .985; p.a -= .011;
+      if (p.a <= 0) return false;
+      fx.globalAlpha = Math.max(0, p.a);
+      fx.fillStyle = p.c;
+      fx.beginPath(); fx.arc(p.x, p.y, p.r, 0, Math.PI * 2); fx.fill();
+      fx.globalAlpha = 1;
+      return true;
+    });
+
+    rafId = requestAnimationFrame(stepFrame);
+  };
+  rafId = requestAnimationFrame(stepFrame);
+}
+
+addEventListener('resize', () => { if (fwOn) resizeFw(); });
+
+function fwStop() {
+  fwOn = false;
+  cancelAnimationFrame(rafId);
+  rk = []; pt = [];
+  fx.setTransform(1, 0, 0, 1, 0, 0);
+  fx.clearRect(0, 0, fw.width, fw.height);
+}
+
+/* ---------- happy birthday song ---------- */
+function melody() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    const a = new AudioCtx();
+    const seq = '392:.5,392:.25,440:.75,392:.75,523:.75,494:1.5,392:.5,392:.25,440:.75,392:.75,587:.75,523:1.5,392:.5,392:.25,784:.75,659:.75,523:.75,494:.75,440:.75,698:.5,698:.25,659:.75,523:.75,587:.75,523:1.5';
+    let t = a.currentTime + .12;
+    seq.split(',').forEach(n => {
+      const [f, b] = n.split(':').map(Number);
+      const dur = b * .4;
+      const o = a.createOscillator(), g = a.createGain();
+      o.type = 'triangle';
+      o.frequency.value = f;
+      o.connect(g);
+      g.connect(a.destination);
+      g.gain.setValueAtTime(.0001, t);
+      g.gain.exponentialRampToValueAtTime(.22, t + .03);
+      g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+      o.start(t);
+      o.stop(t + dur + .05);
+      t += dur;
+    });
+  } catch (e) {}
+}
+
+show(0);
+</script>
+</body>
+</html>
